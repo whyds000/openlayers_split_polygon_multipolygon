@@ -71,6 +71,7 @@ class Draw {
             type: type,
             stopClick: true
         });
+
         this.splitArrs = []
         if (type === "LineString") {
             this.interaction.on('drawstart', this.onDrawStart);
@@ -83,6 +84,7 @@ class Draw {
     }
 
     onDrawStart = (e) => {
+
         this.splitArrs = []
         e.feature.getGeometry().on('change', this.onGeomChange);
     }
@@ -114,7 +116,7 @@ class Draw {
         if (polygon.getGeometry().getType() === 'MultiPolygon') {
             const arr = polygon.getGeometry().getCoordinates()
             const splitArrs = []
-            arr.forEach((it) => {
+            arr.forEach((it, index) => {
 
                 const _polygon = new ol.Feature({
                     geometry: new ol.geom.Polygon(it)
@@ -212,6 +214,19 @@ class Draw {
             this.splitArrs.forEach(it => {
                 this.vector_layer.getSource().addFeature(it)
             })
+            if (polygon.getGeometry().getCoordinates().length !== this.splitArrs.length / 2) {
+                const index = this.splitArrs.length / 2 - 1
+                const arr = polygon.getGeometry().getCoordinates().slice()
+                arr.splice(index, 1)
+                const _polygon=new ol.Feature({
+                    geometry:new ol.geom.MultiPolygon(arr)
+                })
+                this.vector_layer.getSource().addFeature(_polygon)
+
+            }
+
+
+
         }
     }
 }
